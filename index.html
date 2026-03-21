@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Servicios del Pollito 🐥</title>
+</head>
+<body>
+//esto es el corazon rotisimo como el de mi ex
+<h1>🐥 Servicios del Pollito</h1>
+
+<input id="email" placeholder="Correo">
+<input id="password" type="password" placeholder="Contraseña">
+
+<br><br>
+//le de arriba eslo que en cuestion de tiempo se crashea
+<button onclick="register()">Registrarse</button>
+<button onclick="login()">Entrar</button>
+<button onclick="loginGoogle()">Entrar con Google</button>
+//el pepe
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCVQyiAqSFu00dxVxBv3UVv6qbPx_pPlC4",
+  authDomain: "serviciosdelpollito-d7c13.firebaseapp.com",
+  projectId: "serviciosdelpollito-d7c13"
+};
+//no copies eso we me costo mucho aser los servidores en firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+//esto es para detectar que algo esta funcionando
+console.log("SCRIPT FUNCIONANDO 🐥");
+//esto esta para ir a inicio
+function register() {
+  auth.createUserWithEmailAndPassword(email.value, password.value)
+  .then(user => {
+    db.collection("users").doc(user.user.uid).set({
+      nombre: "Pollito",
+      foto: "https://i.imgur.com/4ZQZ4ZQ.png",
+      rol: "usuario"
+    });
+    window.location = "app.html";
+  });
+}
+
+function login() {
+  auth.signInWithEmailAndPassword(email.value, password.value)
+  .then(() => {
+    window.location = "app.html";
+  });
+}
+
+function loginGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+
+  auth.signInWithPopup(provider)
+  .then(result => {
+    const user = result.user;
+//Hey tu que haces aca!!! no andes viendo en donde no debes!!! creeme me costo mucho hacer esto
+    db.collection("users").doc(user.uid).set({
+      nombre: user.displayName,
+      foto: user.photoURL,
+      rol: "usuario"
+    });
+
+    window.location = "app.html";
+  });
+}
+</script>
+
+</body>
+</html>
