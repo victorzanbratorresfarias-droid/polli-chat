@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🐥 Comunidad Pollito</title>
+</head>
+<body>
+
+<h1>💬 Comunidad</h1>
+
+<button onclick="logout()">Cerrar sesión</button>
+
+<hr>
+
+<div id="chat"></div>
+
+<input id="msg" placeholder="Escribe un mensaje">
+<button onclick="send()">Enviar</button>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCVQyiAqSFu00dxVxBv3UVv6qbPx_pPlC4",
+  authDomain: "serviciosdelpollito-d7c13.firebaseapp.com",
+  projectId: "serviciosdelpollito-d7c13"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// VERIFICAR LOGIN
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    window.location = "index.html";
+  } else {
+    cargarMensajes();
+  }
+});
+
+// CARGAR MENSAJES EN TIEMPO REAL
+function cargarMensajes() {
+  db.collection("messages")
+  .orderBy("fecha")
+  .onSnapshot(snapshot => {
+    chat.innerHTML = "";
+    snapshot.forEach(doc => {
+      const m = doc.data();
+      chat.innerHTML += `
+        <p>
+          <img src="${m.foto}" width="30">
+          <b>${m.nombre}</b> (${m.rol}): ${m.texto}
+        </p>
+      `;
+    });
+  });
+}
+
+// ENVIAR MENSAJE
+function send() {
+  const texto = msg.value;
+
+  const user = auth.currentUser;
+
+  db.collection("users").doc(user.uid).get().then(doc => {
+    const u = doc.data();
+
+    db.collection("messages").add({
+      texto: texto,
+      nombre: u.nombre,
+      foto: u.foto,
+      rol: u.rol,
+      fecha: Date.now()
+    });
+  });
+
+  msg.value = "";
+}
+
+// CERRAR SESIÓN
+function logout() {
+  auth.signOut().then(() => {
+    window.location = "index.html";
+  });
+}
+</script>
+
+</body>
+</html>
