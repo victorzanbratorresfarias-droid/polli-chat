@@ -28,6 +28,24 @@
 
   titulo.value = "";
   contenido.value = "";
+function cargarPosts() {
+  db.collection("posts")
+    .orderBy("fecha", "desc")
+    .onSnapshot(snapshot => {
+      foro.innerHTML = "";
+
+      snapshot.forEach(doc => {
+        const p = doc.data();
+
+        foro.innerHTML += `
+          <div style="border:1px solid gray; padding:10px; margin:10px;">
+            <h3>${p.titulo}</h3>
+            <p>${p.contenido}</p>
+            <small>👤 ${p.autor}</small>
+          </div>
+        `;
+      });
+    });
 }
 <button onclick="logout()">Cerrar sesión</button>
 
