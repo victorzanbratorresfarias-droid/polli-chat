@@ -5,20 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🐥 Comunidad Pollito</title>
   <style>
-    /* VARIABLES DE COLOR TIPO DISCORD */
     :root {
-      --bg-main: #36393f;        /* Chat background */
-      --bg-side: #2f3136;        /* Header background */
-      --bg-input: #40444b;       /* Input background */
-      --text-main: #dcddde;      /* Main text */
-      --text-muted: #72767d;     /* Muted text (rol) */
-      --text-link: #00aff4;      /* Links */
-      --accent: #5865f2;         /* Discord blue buttons */
+      --bg-main: #36393f;
+      --bg-side: #2f3136;
+      --bg-input: #40444b;
+      --text-main: #dcddde;
+      --text-muted: #72767d;
+      --accent: #5865f2;
       --accent-hover: #4752c4;
-      --danger: #ed4245;         /* Logout button */
-      --danger-hover: #c03537;
+      --danger: #ed4245;
       --border: #202225;
-      --font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     body {
@@ -26,14 +23,12 @@
       color: var(--text-main);
       font-family: var(--font-family);
       margin: 0;
-      padding: 0;
       display: flex;
       flex-direction: column;
       height: 100vh;
       overflow: hidden;
     }
 
-    /* BARRA SUPERIOR (HEADER) TIPO DISCORD */
     header {
       background-color: var(--bg-side);
       padding: 10px 20px;
@@ -41,189 +36,87 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border);
-      box-shadow: 0 1px 0 rgba(0,0,0,0.2), 0 1.5px 0 rgba(0,0,0,0.05);
-      z-index: 10;
     }
 
-    header h1 {
-      margin: 0;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: white;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    header h1 { margin: 0; font-size: 1.1rem; color: white; }
 
-    header h1::before {
-      content: '#';
-      color: var(--text-muted);
-      font-size: 1.3rem;
-      font-weight: 400;
-    }
+    .nav-buttons { display: flex; gap: 8px; }
 
-    .nav-buttons {
-      display: flex;
-      gap: 10px;
-    }
-
-    /* BOTONES ESTILO DISCORD */
+    /* BOTONES ESTILIZADOS */
     button {
       border: none;
-      border-radius: 3px;
-      padding: 6px 16px;
-      font-size: 14px;
+      border-radius: 4px;
+      padding: 7px 14px;
+      font-size: 13px;
       font-weight: 500;
       cursor: pointer;
-      transition: background-color 0.1s;
-      font-family: var(--font-family);
+      transition: 0.2s;
     }
 
-    .btn-primary {
-      background-color: var(--accent);
-      color: white;
-    }
-    .btn-primary:hover { background-color: var(--accent-hover); }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); }
 
-    .btn-danger {
-      background-color: transparent;
-      color: #fff;
-      opacity: 0.8;
-    }
-    .btn-danger:hover {
-      background-color: var(--danger);
-      opacity: 1;
-    }
+    .btn-danger { background: transparent; color: var(--text-muted); }
+    .btn-danger:hover { background: var(--danger); color: white; }
 
-    /* ÁREA DE CHAT PRINCIPAL */
+    .btn-user { background: #4f545c; color: white; }
+    .btn-user:hover { background: #686d73; }
+
+    /* CHAT CORREGIDO */
     #chat-wrapper {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 0; /* Padding top/bottom */
+      padding: 20px 0;
       display: flex;
-      flex-direction: column-reverse; /* Empezar desde abajo */
+      flex-direction: column; /* Cambiado de column-reverse para evitar bugs de orden */
     }
 
-    #chat {
-      display: flex;
-      flex-direction: column;
-      gap: 2px; /* Espacio mínimo entre mensajes del mismo usuario */
-    }
-
-    /* MENSAJE INDIVIDUAL TIPO DISCORD */
     .mensaje-container {
       display: flex;
-      align-items: flex-start;
-      padding: 2px 20px; /* Reducido para parecer Discord */
-      position: relative;
+      padding: 4px 20px;
     }
 
-    .mensaje-container:hover {
-      background-color: rgba(4, 4, 5, 0.07);
-    }
+    .mensaje-container:hover { background-color: rgba(0,0,0,0.1); }
 
     .user-avatar {
       width: 40px;
       height: 40px;
-      border-radius: 50%; /* Avatares redondos */
-      background-color: #555; /* Color base si falla la imagen */
-      margin-right: 16px;
-      margin-top: 2px;
+      border-radius: 50%;
+      margin-right: 15px;
       flex-shrink: 0;
-      border: 1px solid rgba(255,255,255,0.1);
     }
 
-    .message-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
+    .user-name { font-weight: 600; color: white; margin-right: 8px; }
+    .rol-tag { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; }
+    .message-text { font-size: 0.95rem; white-space: pre-wrap; word-break: break-word; }
 
-    .message-header {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      margin-bottom: 2px;
-    }
-
-    .user-name {
-      font-weight: 600;
-      color: white;
-      font-size: 1rem;
-    }
-
-    .rol-tag {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    .message-text {
-      color: var(--text-main);
-      font-size: 0.95rem;
-      line-height: 1.375rem;
-      white-space: pre-wrap; /* Mantener saltos de línea */
-      word-wrap: break-word;
-    }
-
-    /* ÁREA DE ENTRADA DE TEXTO (INPUT) TIPO DISCORD */
-    #input-wrapper {
-      padding: 0 20px 20px 20px;
-      background-color: var(--bg-main);
-      z-index: 5;
-    }
-
+    /* ÁREA DE INPUT */
+    #input-wrapper { padding: 0 20px 24px; }
     #input-area {
-      background-color: var(--bg-input);
+      background: var(--bg-input);
       border-radius: 8px;
       display: flex;
-      align-items: center;
-      padding: 0 10px;
-      box-shadow: 0 -1px 0 rgba(0,0,0,0.1);
+      padding: 2px 15px;
     }
 
     #msg {
       flex: 1;
       background: transparent;
       border: none;
-      color: var(--text-main);
-      padding: 14px 10px;
-      font-size: 0.95rem;
-      font-family: var(--font-family);
+      color: white;
+      padding: 12px 0;
+      outline: none;
     }
 
-    #msg:focus { outline: none; }
-
-    #msg::placeholder {
-      color: var(--text-muted);
-    }
-
-    .btn-send {
-      background-color: transparent;
-      color: var(--accent);
-      padding: 10px;
-      font-weight: bold;
-    }
-    .btn-send:hover { background-color: rgba(88, 101, 242, 0.1); }
-
-    /* ERROR BOX TIPO DISCORD */
     #errorBox {
       display: none;
-      background-color: var(--danger);
+      background: var(--danger);
       color: white;
       padding: 10px;
       text-align: center;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      font-size: 14px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      top: 0; width: 100%; z-index: 100;
     }
-
   </style>
 </head>
 <body>
@@ -231,22 +124,22 @@
 <div id="errorBox"></div>
 
 <header>
-  <h1>Comunidad</h1>
+  <h1>Comunidad Pollito</h1>
   <div class="nav-buttons">
-    <button class="btn-primary" onclick="window.location='foro.html'">📌 Ir al foro</button>
-    <button class="btn-danger" onclick="logout()">Cerrar sesión</button> <button onclick="window.location='cuenta.html'">👤 Mi cuenta</button>
+    <button class="btn-primary" onclick="window.location='foro.html'">📌 Foro</button>
+    <button class="btn-user" onclick="window.location='cuenta.html'">👤 Mi cuenta</button>
+    <button class="btn-danger" onclick="logout()">Salir</button>
   </div>
 </header>
 
 <div id="chat-wrapper">
-  <div id="chat">
-    </div>
+  <div id="chat"></div>
 </div>
 
 <div id="input-wrapper">
   <div id="input-area">
-    <input id="msg" placeholder="Enviar mensaje a #comunidad">
-    <button class="btn-send" onclick="send()">ENVIAR</button>
+    <input id="msg" placeholder="Enviar mensaje a #comunidad" onkeypress="handleEnter(event)">
+    <button class="btn-primary" style="background:transparent; color:var(--accent)" onclick="send()">ENVIAR</button>
   </div>
 </div>
 
@@ -255,7 +148,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-// --- TU CONFIGURACIÓN DE FIREBASE (No la toqué) ---
 const firebaseConfig = {
   apiKey: "AIzaSyCVQyiAqSFu00dxVxBv3UVv6qbPx_pPlC4",
   authDomain: "serviciosdelpollito-d7c13.firebaseapp.com",
@@ -266,36 +158,36 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-  .catch((error) => console.log(error));
+// --- SISTEMA DE CENSURA ---
+const prohibidas = ["tonto", "feo", "malo"]; // Añade las que quieras
+function censurar(t) {
+  let limpio = t;
+  prohibidas.forEach(p => {
+    const reg = new RegExp(p, "gi");
+    limpio = limpio.replace(reg, "****");
+  });
+  return limpio;
+}
 
-// VERIFICAR LOGIN
+// LOGIN CHECK
 auth.onAuthStateChanged(user => {
-  if (!user) {
-    window.location = "index.html";
-  } else {
-    cargarMensajes();
-  }
+  if (!user) window.location = "index.html";
+  else cargarMensajes();
 });
 
-// CARGAR MENSAJES (ELEGANT DISCORD STYLE)
 function cargarMensajes() {
   const chatDiv = document.getElementById("chat");
   const wrapper = document.getElementById("chat-wrapper");
 
-  db.collection("messages")
-  .orderBy("fecha")
-  .onSnapshot(snapshot => {
+  db.collection("messages").orderBy("fecha").onSnapshot(snapshot => {
     chatDiv.innerHTML = "";
     snapshot.forEach(doc => {
       const m = doc.data();
-      
-      // Estructura de mensaje de Discord
       chatDiv.innerHTML += `
         <div class="mensaje-container">
-          <img src="${m.foto}" class="user-avatar" alt="avatar">
-          <div class="message-content">
-            <div class="message-header">
+          <img src="${m.foto}" class="user-avatar">
+          <div>
+            <div style="margin-bottom:2px">
               <span class="user-name">${m.nombre}</span>
               <span class="rol-tag">${m.rol}</span>
             </div>
@@ -304,54 +196,44 @@ function cargarMensajes() {
         </div>
       `;
     });
-    // Auto-scroll al final
     wrapper.scrollTop = wrapper.scrollHeight;
   });
 }
 
-// ENVIAR MENSAJE (Adaptado ligeramenente para el nuevo input)
 function send() {
-  const msgInput = document.getElementById("msg");
-  const texto = msgInput.value.trim(); // Trim para no enviar vacíos
+  const input = document.getElementById("msg");
+  const valor = input.value.trim();
+  if(!valor) return;
 
-  if(!texto) return;
-
+  const textoFinal = censurar(valor);
   const user = auth.currentUser;
 
   db.collection("users").doc(user.uid).get().then(doc => {
-    if(!doc.exists) return mostrarError("Usuario no encontrado en la DB");
     const u = doc.data();
-
     db.collection("messages").add({
-      texto: texto,
+      texto: textoFinal,
       nombre: u.nombre,
       foto: u.foto,
       rol: u.rol,
       fecha: Date.now()
     });
   });
-
-  msgInput.value = "";
+  input.value = "";
 }
 
-// CERRAR SESIÓN
-function logout() {
-  auth.signOut().then(() => {
-    window.location = "index.html";
-  });
+// ARREGLO DE TECLA ENTER
+function handleEnter(e) {
+  if (e.key === 'Enter') send();
 }
 
-// MOSTRAR ERROR (Estilo Discord Banner)
+function logout() { auth.signOut().then(() => window.location = "index.html"); }
+
 function mostrarError(msg) {
-  const errorBox = document.getElementById("errorBox");
-  errorBox.style.display = "block";
-  errorBox.innerText = "⚠️ " + msg;
-
-  setTimeout(() => {
-    errorBox.style.display = "none";
-  }, 5000);
+  const eb = document.getElementById("errorBox");
+  eb.innerText = "⚠️ " + msg;
+  eb.style.display = "block";
+  setTimeout(() => eb.style.display = "none", 5000);
 }
 </script>
-
 </body>
 </html>
