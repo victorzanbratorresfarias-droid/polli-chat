@@ -1,40 +1,190 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Servicios del Pollito 🐥</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servicios del Pollito 🐥 - Login</title>
+  <style>
+    :root {
+      --bg-discord: #36393f;
+      --card-discord: #2f3136;
+      --text-gray: #b9bbbe;
+      --input-bg: #202225;
+      --accent: #5865f2;
+      --accent-hover: #4752c4;
+      --white: #ffffff;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: var(--bg-discord);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: var(--white);
+    }
+
+    .login-card {
+      background-color: var(--card-discord);
+      padding: 32px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px 0 rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: var(--white);
+    }
+
+    p {
+      color: var(--text-gray);
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      color: var(--text-gray);
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      background-color: var(--input-bg);
+      border: 1px solid rgba(0,0,0,0.3);
+      border-radius: 3px;
+      color: var(--white);
+      font-size: 16px;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+    }
+
+    .btn-main {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 3px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-main:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-google {
+      width: 100%;
+      padding: 10px;
+      background-color: transparent;
+      color: white;
+      border: 1px solid var(--text-gray);
+      border-radius: 3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-google:hover {
+      background-color: rgba(255,255,255,0.05);
+    }
+
+    .footer-links {
+      margin-top: 15px;
+      font-size: 14px;
+      color: var(--text-gray);
+    }
+
+    .footer-links span {
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .footer-links span:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
 
-<h1>🐥 Servicios del Pollito</h1>
+<div class="login-card">
+  <h1>¡Hola de nuevo! 🐥</h1>
+  <p>Servicios del Pollito te espera.</p>
 
-<input id="email" placeholder="Correo">
-<input id="password" type="password" placeholder="Contraseña">
+  <div class="form-group">
+    <label>Correo electrónico</label>
+    <input id="email" type="email">
+  </div>
 
-<br><br>
+  <div class="form-group">
+    <label>Contraseña</label>
+    <input id="password" type="password">
+  </div>
 
-<button onclick="register()">Registrarse</button>
-<button onclick="login()">Entrar</button>
-<button onclick="loginGoogle()">Entrar con Google</button>
+  <button class="btn-main" onclick="login()">Iniciar sesión</button>
+  <button class="btn-google" onclick="loginGoogle()">
+    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
+    Entrar con Google
+  </button>
+
+  <div class="footer-links">
+    ¿Necesitas una cuenta? <span onclick="register()">Registrarse</span>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
+// --- TU CONFIGURACIÓN DE FIREBASE (Intacta) ---
 const firebaseConfig = {
   apiKey: "AIzaSyCVQyiAqSFu00dxVxBv3UVv6qbPx_pPlC4",
   authDomain: "serviciosdelpollito-d7c13.firebaseapp.com",
   projectId: "serviciosdelpollito-d7c13"
 };
-//no copies eso we me costo mucho aser los servidores en firebase
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-//esto es para detectar que algo esta funcionando
+
 console.log("SCRIPT FUNCIONANDO 🐥");
-//esto esta para ir a inicio
+
 function register() {
-  auth.createUserWithEmailAndPassword(email.value, password.value)
+  const e = document.getElementById("email").value;
+  const p = document.getElementById("password").value;
+  
+  if(!e || !p) return alert("Completa los campos");
+
+  auth.createUserWithEmailAndPassword(e, p)
   .then(user => {
     db.collection("users").doc(user.user.uid).set({
       nombre: "Pollito",
@@ -42,31 +192,34 @@ function register() {
       rol: "usuario"
     });
     window.location = "app.html";
-  });
+  })
+  .catch(err => alert(err.message));
 }
 
 function login() {
-  auth.signInWithEmailAndPassword(email.value, password.value)
+  const e = document.getElementById("email").value;
+  const p = document.getElementById("password").value;
+
+  auth.signInWithEmailAndPassword(e, p)
   .then(() => {
     window.location = "app.html";
-  });
+  })
+  .catch(err => alert("Error al entrar: " + err.message));
 }
 
 function loginGoogle() {
   const provider = new firebase.auth.GoogleAuthProvider();
-
   auth.signInWithPopup(provider)
   .then(result => {
     const user = result.user;
-//Hey tu que haces aca!!! no andes viendo en donde no debes!!! creeme me costo mucho hacer esto
     db.collection("users").doc(user.uid).set({
       nombre: user.displayName,
       foto: user.photoURL,
       rol: "usuario"
     });
-
     window.location = "app.html";
-  });
+  })
+  .catch(err => console.log(err));
 }
 </script>
 
