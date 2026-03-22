@@ -13,7 +13,14 @@
       --accent: #5865f2;
       --accent-hover: #4752c4;
       --white: #ffffff;
-    }
+    }@media (max-width: 480px) {
+  .login-card {
+    width: 90%;
+    padding: 20px;
+    margin: 10px;
+  }
+  h1 { font-size: 20px; }
+}
 
     body {
       margin: 0;
@@ -35,7 +42,12 @@
       width: 100%;
       max-width: 400px;
       text-align: center;
-    }
+    }@media (max-width: 600px) {
+  header h1 { font-size: 0.9rem; }
+  .mensaje-container { padding: 8px 10px; }
+  .user-avatar { width: 35px; height: 35px; margin-right: 10px; }
+  #msg { padding: 10px; }
+}
 
     /* SPINNER ANIMATION */
     .loader {
