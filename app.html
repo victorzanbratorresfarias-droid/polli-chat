@@ -37,7 +37,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-
+firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+  .then(() => {
+    console.log("🔐 Sesión guardada");
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 // VERIFICAR LOGIN
 auth.onAuthStateChanged(user => {
   if (!user) {
