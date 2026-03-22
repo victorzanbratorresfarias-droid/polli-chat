@@ -5,7 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Servicios del Pollito 🐥 - Login</title>
   <style>
-    :root {
+   /* Pantalla de bloqueo total */
+#age-verification-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.9); /* Fondo bien oscuro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Por encima de TODO */
+}
+
+.age-card {
+  background: var(--card-discord);
+  padding: 40px;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 400px;
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 20px rgba(88, 101, 242, 0.3);
+}
+
+.age-card h2 { color: white; margin-bottom: 10px; }
+.age-card p { color: var(--text-gray); font-size: 14px; margin-bottom: 25px; }
+
+.age-buttons { display: flex; gap: 10px; justify-content: center; }
+
+.btn-age-yes { background: var(--accent); color: white; border: none; padding: 10px 25px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+.btn-age-no { background: transparent; color: var(--text-gray); border: 1px solid var(--text-gray); padding: 10px 25px; border-radius: 3px; cursor: pointer; }
+
+.btn-age-yes:hover { background: var(--accent-hover); }
+.btn-age-no:hover { background: var(--danger); color: white; border-color: var(--danger); } :root {
       --bg-discord: #36393f;
       --card-discord: #2f3136;
       --text-gray: #b9bbbe;
@@ -23,7 +53,18 @@
 }
 
     body {
-      margin: 0;
+     <div id="age-verification-overlay">
+  <div class="age-card">
+    <img src="https://i.imgur.com/4ZQZ4ZQ.png" width="80" style="margin-bottom: 15px;">
+    <h2>¿Eres mayor de edad? 🐥</h2>
+    <p>Para entrar a la Comunidad Pollito debes confirmar que tienes al menos 18 años.</p>
+    
+    <div class="age-buttons">
+      <button class="btn-age-no" onclick="salida()">Soy menor</button>
+      <button class="btn-age-yes" onclick="confirmarEdad()">Sí, soy mayor</button>
+    </div>
+  </div>
+</div> margin: 0;
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: var(--bg-discord);
