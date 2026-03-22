@@ -1,24 +1,115 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>📌 Foro</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📌 Foro Pollito</title>
+  <style>
+    :root {
+      --bg: #36393f;
+      --card: #2f3136;
+      --accent: #5865f2;
+      --text: #dcddde;
+      --text-muted: #72767d;
+    }
+
+    body {
+      font-family: 'Whitney', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0; padding: 20px;
+      display: flex; justify-content: center;
+    }
+
+    .container { max-width: 800px; width: 100%; }
+
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+
+    /* Creador de Posts */
+    .editor {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    input, textarea {
+      width: 100%;
+      background: #202225;
+      border: 1px solid #202225;
+      color: white;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* Tarjetas de Post */
+    .post-card {
+      background: var(--card);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .post-card img.post-img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 15px 0;
+      display: block;
+    }
+
+    .post-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; }
+
+    /* Sección de Comentarios */
+    .comments-section {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #40444b;
+    }
+
+    .comment {
+      background: #40444b;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+
+    .comment b { color: var(--accent); }
+
+    .comment-input-group { display: flex; gap: 5px; margin-top: 10px; }
+    .comment-input-group input { margin-bottom: 0; padding: 8px; }
+  </style>
 </head>
 <body>
 
-<h1>📌 Foro</h1>
+<div class="container">
+  <header>
+    <h1>📌 Foro Comunitario</h1>
+    <button onclick="window.location='app.html'">← Volver al Chat</button>
+  </header>
 
-<button onclick="window.location='app.html'">← Volver al chat</button>
+  <div class="editor">
+    <input id="titulo" placeholder="Título del post">
+    <textarea id="contenido" placeholder="¿Qué estás pensando?" rows="3"></textarea>
+    <input id="fotoURL" placeholder="Link de la imagen (opcional)">
+    <button onclick="crearPost()">Publicar en el Foro</button>
+  </div>
 
-<hr>
-
-<input id="titulo" placeholder="Título">
-<input id="contenido" placeholder="Contenido">
-
-<button onclick="crearPost()">Publicar</button>
-
-<hr>
-
-<div id="foro"></div>
+  <div id="foro"></div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -35,51 +126,104 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// verificar login
+// Verificar login
 auth.onAuthStateChanged(user => {
-  if (!user) {
-    window.location = "index.html";
-  } else {
-    cargarPosts();
-  }
+  if (!user) window.location = "index.html";
+  else cargarPosts();
 });
 
-// crear post
+// Crear post con imagen
 function crearPost() {
   const user = auth.currentUser;
+  const t = document.getElementById("titulo").value;
+  const c = document.getElementById("contenido").value;
+  const f = document.getElementById("fotoURL").value;
+
+  if(!t || !c) return alert("¡Pon un título y contenido!");
 
   db.collection("posts").add({
-    titulo: titulo.value,
-    contenido: contenido.value,
+    titulo: t,
+    contenido: c,
+    imagen: f || "", // Si no hay foto, queda vacío
+    autor: user.email,
+    uid: user.uid,
+    fecha: Date.now()
+  });
+
+  document.getElementById("titulo").value = "";
+  document.getElementById("contenido").value = "";
+  document.getElementById("fotoURL").value = "";
+}
+
+// Cargar posts y sus comentarios
+function cargarPosts() {
+  db.collection("posts").orderBy("fecha", "desc").onSnapshot(snapshot => {
+    const foroDiv = document.getElementById("foro");
+    foroDiv.innerHTML = "";
+
+    snapshot.forEach(doc => {
+      const p = doc.data();
+      const postId = doc.id;
+
+      // Generar HTML del post
+      let postHTML = `
+        <div class="post-card">
+          <div class="post-meta">Publicado por: ${p.autor}</div>
+          <h2>${p.titulo}</h2>
+          <p>${p.contenido}</p>
+          ${p.imagen ? `<img src="${p.imagen}" class="post-img">` : ''}
+          
+          <div class="comments-section">
+            <div id="list-comments-${postId}"></div>
+            <div class="comment-input-group">
+              <input id="input-${postId}" placeholder="Escribe un comentario...">
+              <button onclick="comentar('${postId}')">Comentar</button>
+            </div>
+          </div>
+        </div>
+      `;
+      foroDiv.innerHTML += postHTML;
+      cargarComentarios(postId);
+    });
+  });
+}
+
+// Función para comentar
+function comentar(postId) {
+  const user = auth.currentUser;
+  const input = document.getElementById(`input-${postId}`);
+  
+  if(!input.value) return;
+
+  db.collection("comentarios").add({
+    postId: postId,
+    texto: input.value,
     autor: user.email,
     fecha: Date.now()
   });
 
-  titulo.value = "";
-  contenido.value = "";
+  input.value = "";
 }
 
-// cargar posts
-function cargarPosts() {
-  db.collection("posts")
-    .orderBy("fecha", "desc")
+// Cargar comentarios de un post específico
+function cargarComentarios(postId) {
+  db.collection("comentarios")
+    .where("postId", "==", postId)
+    .orderBy("fecha", "asc")
     .onSnapshot(snapshot => {
-      foro.innerHTML = "";
-
+      const commDiv = document.getElementById(`list-comments-${postId}`);
+      if(!commDiv) return;
+      commDiv.innerHTML = "";
       snapshot.forEach(doc => {
-        const p = doc.data();
-
-        foro.innerHTML += `
-          <div style="border:1px solid gray; padding:10px; margin:10px;">
-            <h3>${p.titulo}</h3>
-            <p>${p.contenido}</p>
-            <small>👤 ${p.autor}</small>
+        const c = doc.data();
+        commDiv.innerHTML += `
+          <div class="comment">
+            <b>${c.autor.split('@')[0]}:</b> ${c.texto}
           </div>
         `;
       });
     });
 }
 </script>
-
 </body>
 </html>
