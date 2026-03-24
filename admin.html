@@ -2,199 +2,83 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>👑 Panel de Control - Polli Chat</title>
+    <title>👑 Súper Admin - Servicios del Pollito</title>
     <style>
-        :root {
-            --bg-dark: #202225;
-            --bg-panel: #2f3136;
-            --bg-card: #36393f;
-            --text: #ffffff;
-            --text-muted: #b9bbbe;
-            --danger: #ed4245;
-            --danger-hover: #c0392b;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text);
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #4f545c;
-            padding-bottom: 10px;
-        }
-
-        .btn-back {
-            background: #4f545c;
-            color: white;
-            text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .section-title {
-            color: var(--danger);
-            text-transform: uppercase;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-            margin-top: 40px;
-        }
-
-        .list-container {
-            background: var(--bg-panel);
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 10px;
-        }
-
-        .item {
-            background: var(--bg-card);
-            padding: 15px;
-            margin-bottom: 8px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid transparent;
-            transition: 0.2s;
-        }
-
-        .item:hover { border-left-color: var(--danger); }
-
-        .item-info { flex: 1; margin-right: 15px; }
-        .item-user { font-weight: bold; color: var(--text); display: block; font-size: 0.9rem; }
-        .item-text { color: var(--text-muted); font-size: 0.85rem; display: block; margin-top: 3px; }
-
-        .btn-delete {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        .btn-delete:hover { background: var(--danger-hover); }
-
-        #status { color: #3ba55c; font-weight: bold; margin-bottom: 10px; display: none; }
+        :root { --bg: #202225; --panel: #2f3136; --accent: #5865f2; --danger: #ed4245; --text: #fff; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 20px; }
+        .card { background: var(--panel); padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #4f545c; }
+        button { border: none; border-radius: 4px; padding: 10px 15px; cursor: pointer; font-weight: bold; color: white; margin-right: 5px; }
+        input { background: #40444b; border: none; padding: 12px; color: white; border-radius: 5px; width: 70%; }
+        .status-on { color: #2ecc71; } .status-off { color: var(--danger); }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>👑 Panel de Administración</h1>
-        <a href="app.html" class="btn-back">← Volver al Chat</a>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h1>👑 Panel de Poder</h1>
+        <a href="app.html" style="color:gray; text-decoration:none;">← Volver al Chat</a>
     </div>
 
-    <div id="status">✅ Acción realizada con éxito</div>
-
-    <h2 class="section-title">Moderación del Chat (#messages)</h2>
-    <div class="list-container" id="lista-chat">
-        <p style="text-align:center; color:gray;">Cargando mensajes...</p>
+    <div class="card" style="border-color: var(--danger);">
+        <h3>🚨 ESTADO GLOBAL DE LA WEB</h3>
+        <button style="background:#2ecc71" onclick="cambiarEstado(true)">✅ ABRIR WEB</button>
+        <button style="background:var(--danger)" onclick="cambiarEstado(false)">⛔ CERRAR (MANTENIMIENTO)</button>
+        <button style="background:#e67e22" onclick="reiniciarChat()">🔥 BORRAR TODO EL CHAT</button>
+        <p>Estado actual: <span id="web-status">Cargando...</span></p>
     </div>
 
-    <h2 class="section-title">Moderación del Foro (#posts)</h2>
-    <div class="list-container" id="lista-foro">
-        <p style="text-align:center; color:gray;">Cargando posts...</p>
+    <div class="card" style="border-color: var(--accent);">
+        <h3>📣 ANUNCIO OFICIAL DEL SISTEMA</h3>
+        <div style="display:flex; gap:10px;">
+            <input id="sys-msg" placeholder="Escribe el mensaje del sistema...">
+            <button style="background:var(--accent)" onclick="enviarAnuncio()">PUBLICAR</button>
+        </div>
     </div>
-</div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-<script>
-    // CONFIGURACIÓN (Usa la misma que en app.html)
-    const firebaseConfig = {
-        apiKey: "AIzaSyCVQyiAqSFu00dxVxBv3UVv6qbPx_pPlC4",
-        authDomain: "serviciosdelpollito-d7c13.firebaseapp.com",
-        projectId: "serviciosdelpollito-d7c13"
-    };
-
-    if (!firebase.apps.length) {
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVQyiAqSFu00dxVxBv3UVv6qbPx_pPlC4",
+            authDomain: "serviciosdelpollito-d7c13.firebaseapp.com",
+            projectId: "serviciosdelpollito-d7c13"
+        };
         firebase.initializeApp(firebaseConfig);
-    }
-    const db = firebase.firestore();
+        const db = firebase.firestore();
 
-    // 1. CARGAR MENSAJES DEL CHAT
-    function cargarChat() {
-        db.collection("messages").orderBy("fecha", "desc").limit(20).onSnapshot(snap => {
-            const div = document.getElementById("lista-chat");
-            div.innerHTML = "";
-            if (snap.empty) div.innerHTML = "<p style='padding:10px; color:gray;'>No hay mensajes recientes.</p>";
-            
-            snap.forEach(doc => {
-                const m = doc.data();
-                div.innerHTML += `
-                    <div class="item">
-                        <div class="item-info">
-                            <span class="item-user">${m.nombre || 'Anónimo'}</span>
-                            <span class="item-text">${m.texto || '(Sin texto)'}</span>
-                        </div>
-                        <button class="btn-delete" onclick="eliminar('messages', '${doc.id}')">ELIMINAR</button>
-                    </div>
-                `;
-            });
+        // Escuchar estado real de la web
+        db.collection("configuracion").doc("estado").onSnapshot(doc => {
+            const status = doc.exists && doc.data().abierto ? "🟢 ABIERTA" : "🔴 EN MANTENIMIENTO";
+            document.getElementById("web-status").innerText = status;
         });
-    }
 
-    // 2. CARGAR POSTS DEL FORO
-    function cargarForo() {
-        db.collection("posts").orderBy("fecha", "desc").limit(15).onSnapshot(snap => {
-            const div = document.getElementById("lista-foro");
-            div.innerHTML = "";
-            if (snap.empty) div.innerHTML = "<p style='padding:10px; color:gray;'>No hay temas en el foro.</p>";
-
-            snap.forEach(doc => {
-                const p = doc.data();
-                div.innerHTML += `
-                    <div class="item">
-                        <div class="item-info">
-                            <span class="item-user">${p.nombre || 'Anónimo'} — <i>${p.titulo || 'Sin Título'}</i></span>
-                            <span class="item-text">${(p.contenido || '').substring(0, 60)}...</span>
-                        </div>
-                        <button class="btn-delete" onclick="eliminar('posts', '${doc.id}')">BORRAR POST</button>
-                    </div>
-                `;
-            });
-        });
-    }
-
-    // 3. FUNCIÓN PARA ELIMINAR (CHAT O FORO)
-    function eliminar(coleccion, id) {
-        if (confirm("¿Estás seguro de que quieres borrar esto? No se puede deshacer.")) {
-            db.collection(coleccion).doc(id).delete()
-                .then(() => {
-                    const status = document.getElementById("status");
-                    status.style.display = "block";
-                    setTimeout(() => status.style.display = "none", 3000);
-                })
-                .catch(err => {
-                    alert("Error al borrar: " + err.message);
-                });
+        function cambiarEstado(valor) {
+            db.collection("configuracion").doc("estado").set({ abierto: valor })
+            .then(() => alert("Estado actualizado"));
         }
-    }
 
-    // Iniciar carga
-    cargarChat();
-    cargarForo();
-</script>
+        async function reiniciarChat() {
+            if(confirm("¿Seguro? Se borrarán todos los mensajes.")){
+                const snap = await db.collection("messages").get();
+                const batch = db.batch();
+                snap.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+                alert("Nido limpio 🐣");
+            }
+        }
 
+        function enviarAnuncio() {
+            const txt = document.getElementById("sys-msg").value;
+            if(!txt) return;
+            db.collection("messages").add({
+                nombre: "SISTEMA 🤖",
+                texto: "⚠️ " + txt,
+                foto: "https://i.imgur.com/GypIgex.png",
+                fecha: Date.now(),
+                sistema: true
+            }).then(() => { document.getElementById("sys-msg").value = ""; });
+        }
+    </script>
 </body>
 </html>
