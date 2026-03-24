@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👑 Panel de Control - Polli Chat</title>
+    <style>
+        :root {
+            --bg-dark: #202225;
+            --bg-panel: #2f3136;
+            --bg-card: #36393f;
+            --text: #ffffff;
+            --text-muted: #b9bbbe;
+            --danger: #ed4245;
+            --danger-hover: #c0392b;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #4f545c;
+            padding-bottom: 10px;
+        }
+
+        .btn-back {
+            background: #4f545c;
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .section-title {
+            color: var(--danger);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-top: 40px;
+        }
+
+        .list-container {
+            background: var(--bg-panel);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .item {
+            background: var(--bg-card);
+            padding: 15px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid transparent;
+            transition: 0.2s;
+        }
+
+        .item:hover { border-left-color: var(--danger); }
+
+        .item-info { flex: 1; margin-right: 15px; }
+        .item-user { font-weight: bold; color: var(--text); display: block; font-size: 0.9rem; }
+        .item-text { color: var(--text-muted); font-size: 0.85rem; display: block; margin-top: 3px; }
+
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .btn-delete:hover { background: var(--danger-hover); }
+
+        #status { color: #3ba55c; font-weight: bold; margin-bottom: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>👑 Panel de Administración</h1>
+        <a href="app.html" class="btn-back">← Volver al Chat</a>
+    </div>
+
+    <div id="status">✅ Acción realizada con éxito</div>
+
+    <h2 class="section-title">Moderación del Chat (#messages)</h2>
+    <div class="list-container" id="lista-chat">
+        <p style="text-align:center; color:gray;">Cargando mensajes...</p>
+    </div>
+
+    <h2 class="section-title">Moderación del Foro (#posts)</h2>
+    <div class="list-container" id="lista-foro">
+        <p style="text-align:center; color:gray;">Cargando posts...</p>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+    // CONFIGURACIÓN (Usa la misma que en app.html)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCVQyiAqSFu00dxVxBv3UVv6qbPx_pPlC4",
+        authDomain: "serviciosdelpollito-d7c13.firebaseapp.com",
+        projectId: "serviciosdelpollito-d7c13"
+    };
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    // 1. CARGAR MENSAJES DEL CHAT
+    function cargarChat() {
+        db.collection("messages").orderBy("fecha", "desc").limit(20).onSnapshot(snap => {
+            const div = document.getElementById("lista-chat");
+            div.innerHTML = "";
+            if (snap.empty) div.innerHTML = "<p style='padding:10px; color:gray;'>No hay mensajes recientes.</p>";
+            
+            snap.forEach(doc => {
+                const m = doc.data();
+                div.innerHTML += `
+                    <div class="item">
+                        <div class="item-info">
+                            <span class="item-user">${m.nombre || 'Anónimo'}</span>
+                            <span class="item-text">${m.texto || '(Sin texto)'}</span>
+                        </div>
+                        <button class="btn-delete" onclick="eliminar('messages', '${doc.id}')">ELIMINAR</button>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    // 2. CARGAR POSTS DEL FORO
+    function cargarForo() {
+        db.collection("posts").orderBy("fecha", "desc").limit(15).onSnapshot(snap => {
+            const div = document.getElementById("lista-foro");
+            div.innerHTML = "";
+            if (snap.empty) div.innerHTML = "<p style='padding:10px; color:gray;'>No hay temas en el foro.</p>";
+
+            snap.forEach(doc => {
+                const p = doc.data();
+                div.innerHTML += `
+                    <div class="item">
+                        <div class="item-info">
+                            <span class="item-user">${p.nombre || 'Anónimo'} — <i>${p.titulo || 'Sin Título'}</i></span>
+                            <span class="item-text">${(p.contenido || '').substring(0, 60)}...</span>
+                        </div>
+                        <button class="btn-delete" onclick="eliminar('posts', '${doc.id}')">BORRAR POST</button>
+                    </div>
+                `;
+            });
+        });
+    }
+
+    // 3. FUNCIÓN PARA ELIMINAR (CHAT O FORO)
+    function eliminar(coleccion, id) {
+        if (confirm("¿Estás seguro de que quieres borrar esto? No se puede deshacer.")) {
+            db.collection(coleccion).doc(id).delete()
+                .then(() => {
+                    const status = document.getElementById("status");
+                    status.style.display = "block";
+                    setTimeout(() => status.style.display = "none", 3000);
+                })
+                .catch(err => {
+                    alert("Error al borrar: " + err.message);
+                });
+        }
+    }
+
+    // Iniciar carga
+    cargarChat();
+    cargarForo();
+</script>
+
+</body>
+</html>
